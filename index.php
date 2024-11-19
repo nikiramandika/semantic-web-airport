@@ -41,7 +41,7 @@
                 <p id="errorMsg" style="color: red; font-size: 14px; display: none; margin-top: 5px;">
                     Please enter at least 3 characters.
                 </p>
-                <button type="submit" hidden class="search-button">Search</button>
+                <button type="submit" hidden class="search-button">cari</button>
             </form>
         </div>
     </div>
