@@ -118,27 +118,32 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 
                     // Query SPARQL untuk DBpedia
                     $sparqlQuery = "
-                SELECT DISTINCT (SAMPLE(?airport) AS ?airport) (SAMPLE(?name) AS ?name) (SAMPLE(?iata) AS ?iata)
-                WHERE {
-                    ?airport rdf:type dbo:Airport .
-                    ?airport rdfs:label ?name .
-                    OPTIONAL { ?airport geo:lat ?lat . }
-                    OPTIONAL { ?airport geo:long ?long . }
-                    OPTIONAL { ?airport dbo:location ?location . }
-                    OPTIONAL { ?airport dbo:city ?city . }
-                    OPTIONAL { ?airport dbo:iataLocationIdentifier ?iata . }
-                    FILTER (
-                        lang(?name) = 'en' &&
-                        (
-                            CONTAINS(LCASE(STR(?location)), LCASE('$formattedQuery')) ||
-                            CONTAINS(LCASE(STR(?city)), LCASE('$formattedQuery')) ||
-                            CONTAINS(LCASE(?name), LCASE('$query')) ||
-                            LCASE(?iata) = LCASE('$query')
+                    SELECT DISTINCT (SAMPLE(?airport) AS ?airport) (SAMPLE(?name) AS ?name) (SAMPLE(?iata) AS ?iata)
+                    WHERE {
+                        ?airport rdf:type dbo:Airport .
+                        ?airport rdfs:label ?name .
+                        OPTIONAL { ?airport geo:lat ?lat . }
+                        OPTIONAL { ?airport geo:long ?long . }
+                        OPTIONAL { ?airport dbo:location ?location . }
+                        OPTIONAL { ?airport dbo:city ?city . }
+                         { ?airport dbo:iataLocationIdentifier ?iata . } # Tambahkan properti IATA
+                        FILTER (
+                            lang(?name) = 'en' &&
+                            (
+                                # Cocokkan lokasi, kota, nama bandara, atau kode IATA
+                                (CONTAINS(LCASE(STR(?location)), LCASE('$formattedQuery')) ||
+                                CONTAINS(LCASE(STR(?city)), LCASE('$formattedQuery')) ||
+                                CONTAINS(LCASE(?name), LCASE('$query')) ||
+                                LCASE(?iata) = LCASE('$query'))
+                            )
                         )
-                    )
-                }
-                LIMIT 20
-            ";
+                        # Normalisasi nama bandara untuk mengelompokkan hasil
+                        BIND(REPLACE(LCASE(?name), '[^a-z0-9]', '') AS ?normalizedName)
+                    }
+                    GROUP BY ?normalizedName
+                    ORDER BY ?normalizedName
+                    limit 20
+                ";
 
                     // Query SPARQL untuk Jena Fuseki
                     $fusekiQuery = "
@@ -174,51 +179,39 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 
                     // Gabungkan hasil dari DBpedia dan Fuseki
                     $combinedResults = [];
-                    $addedIATA = []; // Array untuk melacak IATA yang sudah ditambahkan
-            
-                    // Tambahkan hasil dari Fuseki terlebih dahulu untuk memprioritaskan
+
+                    // Tambahkan hasil dari DBpedia
+                    foreach ($results as $result) {
+                        $combinedResults[] = [
+                            'airport' => htmlspecialchars($result->airport),
+                            'name' => htmlspecialchars($result->name),
+                            'iata' => htmlspecialchars($result->iata),
+                            'source' => 'DBpedia',
+                        ];
+                    }
+
+                    // Tambahkan hasil dari Fuseki
                     foreach ($fusekiResults as $result) {
+                        // Ambil nama bandara dari Fuseki
                         $airportName = isset($result->airportName) ? htmlspecialchars($result->airportName) : 'Unknown Airport';
                         $airportNama = str_replace('_', ' ', $airportName);
                         $iata = isset($result->kodeIATA) ? htmlspecialchars($result->kodeIATA) : 'Unknown IATA';
+                        // Ambil lokasi bandara
+                        $locationName = isset($result->locationName) ? htmlspecialchars($result->locationName) : 'Unknown Location';
 
-                        if (!isset($addedIATA[$iata])) {
-                            $locationName = isset($result->locationName) ? htmlspecialchars($result->locationName) : 'Unknown Location';
-
-                            $combinedResults[] = [
-                                'airport' => htmlspecialchars($result->airportName),
-                                'name' => $airportNama,
-                                'iata' => $iata,
-                                'source' => 'Fuseki',
-                            ];
-
-                            // Tandai IATA sudah ditambahkan
-                            $addedIATA[$iata] = true;
-                        }
-                    }
-
-                    // Tambahkan hasil dari DBpedia jika kode IATA belum ada
-                    foreach ($results as $result) {
-                        $iata = isset($result->iata) ? htmlspecialchars($result->iata) : 'Unknown IATA';
-
-                        // Hanya tambahkan jika kode IATA belum ada dalam $addedIATA
-                        if (!isset($addedIATA[$iata])) {
-                            $combinedResults[] = [
-                                'airport' => htmlspecialchars($result->airport),
-                                'name' => htmlspecialchars($result->name),
-                                'iata' => $iata,
-                                'source' => 'DBpedia',
-                            ];
-
-                            // Tandai IATA sudah ditambahkan
-                            $addedIATA[$iata] = true;
-                        }
+                        // Gabungkan hasil ke array
+                        $combinedResults[] = [
+                            'airport' => htmlspecialchars($result->airportName), // Gunakan $airportName sebagai URI
+                            'name' => $airportNama, // Gunakan $airportName untuk properti 'name'
+                            'iata' => $iata, // Gunakan $airportName sebagai
+                            'source' => 'Fuseki',
+                        ];
                     }
 
                     // Tampilkan hasil pencarian
                     echo "<div class='results-header'>
-                        <h2>Search Results for \"" . htmlspecialchars($query) . "\"</h2>
-                    </div>";
+    <h2>Search Results for \"" . htmlspecialchars($query) . "\"</h2>
+</div>";
 
                     if (count($combinedResults) > 0) {
                         echo "<ul class='results-list'>";
@@ -229,6 +222,7 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                                 </a>
                             </li>";
                         }
+
                         echo "</ul>";
                     } else {
                         echo "<div class='no-results'>No airports found matching your search.</div>";
