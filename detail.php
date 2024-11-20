@@ -5,56 +5,94 @@ require 'vendor/autoload.php';
 
 use EasyRdf\Sparql\Client;
 
-// Ambil URI dari parameter GET
+// Ambil URI dan sumber data dari parameter GET
 $uri = $_GET['uri'] ?? '';
+$source = $_GET['source'] ?? '';
 
-if (empty($uri)) {
-    die("Invalid URI.");
+if (empty($uri) || empty($source)) {
+    die("Invalid URI or source.");
 }
 
-// Buat SPARQL client
-$sparql = new Client('https://dbpedia.org/sparql');
-
 try {
-    // Query untuk mendapatkan URI canonical jika ada pengalihan
-    $redirectQuery = "
-        SELECT DISTINCT ?canonicalUri
+    if ($source === 'DBpedia') {
+        // Buat SPARQL client untuk DBpedia
+        $sparql = new Client('https://dbpedia.org/sparql');
+
+        // Query untuk mendapatkan URI canonical jika ada pengalihan
+        $redirectQuery = "
+            SELECT DISTINCT ?canonicalUri
+            WHERE {
+                <$uri> dbo:wikiPageRedirects ?canonicalUri
+            }
+            LIMIT 1
+        ";
+        $redirectResult = $sparql->query($redirectQuery)->current();
+
+        // Jika ada URI canonical, gunakan itu
+        if ($redirectResult && isset($redirectResult->canonicalUri)) {
+            $uri = $redirectResult->canonicalUri;
+        }
+
+        // Query untuk mendapatkan detail bandara dari DBpedia
+        $sparqlQuery = "
+            SELECT DISTINCT ?name ?abstract ?country ?city ?iata ?icao ?elevation 
+                          ?runways ?operator ?website ?image ?lat ?long
+            WHERE {
+                <$uri> rdfs:label ?name ;
+                       dbo:abstract ?abstract .
+                OPTIONAL { <$uri> dbo:country ?country }
+                OPTIONAL { <$uri> dbo:city ?city }
+                OPTIONAL { <$uri> dbo:iataLocationIdentifier ?iata }
+                OPTIONAL { <$uri> dbo:icaoLocationIdentifier ?icao }
+                OPTIONAL { <$uri> dbo:elevation ?elevation }
+                OPTIONAL { <$uri> dbo:runwayCount ?runways }
+                OPTIONAL { <$uri> dbo:operator ?operator }
+                OPTIONAL { <$uri> foaf:homepage ?website }
+                OPTIONAL { <$uri> dbo:thumbnail ?image }
+                OPTIONAL { <$uri> geo:lat ?lat }
+                OPTIONAL { <$uri> geo:long ?long }
+                FILTER(lang(?name) = 'en' && lang(?abstract) = 'en')
+            }
+            LIMIT 1
+        ";
+
+        $result = $sparql->query($sparqlQuery)->current();
+    } elseif ($source === 'Fuseki') {
+        // Buat SPARQL client untuk Jena Fuseki
+        $fuseki = new Client('http://localhost:3030/Airport/query');
+        $namespace = 'http://www.tubes_ws_airport.org#';
+        $uri = $namespace . $uri;
+
+
+        // Query untuk mendapatkan detail bandara dari Fuseki
+        $sparqlQuery = "
+        PREFIX www: <http://www.tubes_ws_airport.org#>
+        SELECT ?airport ?kodeIATA ?kodeICAO ?city ?operator ?location ?latitude ?longitude ?thumbnail ?email
         WHERE {
-            <$uri> dbo:wikiPageRedirects ?canonicalUri
+            ?airport a www:Airport .
+            OPTIONAL { ?airport www:Kode_IATA ?kodeIATA . }
+            OPTIONAL { ?airport www:Kode_ICAO ?kodeICAO . }
+            OPTIONAL { ?airport www:email ?email . }
+            OPTIONAL { ?airport www:city ?city . }
+            OPTIONAL { ?airport www:operator ?operator . }
+            OPTIONAL { ?airport www:locatedIn ?location . }
+            OPTIONAL { ?airport www:latitude ?latitude . }
+            OPTIONAL { ?airport www:longtitude ?longitude . }
+            OPTIONAL { ?airport www:thumbnail ?thumbnail . }
+            FILTER(STR(?airport) = '$uri')
         }
         LIMIT 1
     ";
-    $redirectResult = $sparql->query($redirectQuery)->current();
 
-    // Jika ada URI canonical, gunakan itu
-    if ($redirectResult && isset($redirectResult->canonicalUri)) {
-        $uri = $redirectResult->canonicalUri;
+
+        $result = $fuseki->query($sparqlQuery)->current();
+        $airport = str_replace($namespace, '', $result->airport);
+        $airport = str_replace('_', ' ', $airport);
+        $location = str_replace($namespace, '', $result->location);
+        $location = str_replace('_', ' ', $location);
+    } else {
+        throw new Exception("Invalid source specified.");
     }
-
-    // Query untuk mendapatkan detail bandara
-    $sparqlQuery = "
-        SELECT DISTINCT ?name ?abstract ?country ?city ?iata ?icao ?elevation 
-                      ?runways ?operator ?website ?image ?lat ?long
-        WHERE {
-            <$uri> rdfs:label ?name ;
-                   dbo:abstract ?abstract .
-            OPTIONAL { <$uri> dbo:country ?country }
-            OPTIONAL { <$uri> dbo:city ?city }
-            OPTIONAL { <$uri> dbo:iataLocationIdentifier ?iata }
-            OPTIONAL { <$uri> dbo:icaoLocationIdentifier ?icao }
-            OPTIONAL { <$uri> dbo:elevation ?elevation }
-            OPTIONAL { <$uri> dbo:runwayCount ?runways }
-            OPTIONAL { <$uri> dbo:operator ?operator }
-            OPTIONAL { <$uri> foaf:homepage ?website }
-            OPTIONAL { <$uri> dbo:thumbnail ?image }
-            OPTIONAL { <$uri> geo:lat ?lat }
-            OPTIONAL { <$uri> geo:long ?long }
-            FILTER(lang(?name) = 'en' && lang(?abstract) = 'en')
-        }
-        LIMIT 1
-    ";
-
-    $result = $sparql->query($sparqlQuery)->current();
 
     if (!$result) {
         throw new Exception("No details found for the provided URI.");
@@ -63,6 +101,7 @@ try {
     $error = $e->getMessage();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -189,7 +228,7 @@ try {
             <div class="error-message">
                 <?php echo htmlspecialchars($error); ?>
             </div>
-        <?php elseif ($result): ?>
+        <?php elseif ($source === 'DBpedia'): ?>
             <div class="airport-card">
                 <div class="airport-header">
                     <h1><?php echo htmlspecialchars($result->name); ?></h1>
@@ -211,9 +250,8 @@ try {
                     <img src="<?= htmlspecialchars($result->image); ?>" alt="<?= htmlspecialchars($result->name); ?>"
                         class="airport-image">
                 <?php else: ?>
-                    <p class="no-image">Tidak ada gambar tersedia</p>
+                    <p class="no-image">No image available</p>
                 <?php endif; ?>
-
 
                 <div class="airport-content">
                     <div class="abstract">
@@ -259,30 +297,85 @@ try {
                         </div>
                     </div>
 
-
                     <?php if (isset($result->lat) && isset($result->long)): ?>
                         <div id="map" style="height: 400px; width: 100%;"></div>
                         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                         <script>
                             document.addEventListener('DOMContentLoaded', function () {
-                                // Koordinat lokasi
                                 const latitude = <?php echo $result->lat; ?>;
                                 const longitude = <?php echo $result->long; ?>;
-                                const name = <?php
-                                $name = str_replace('–', ' ', $result->name);
-                                echo json_encode(htmlspecialchars($name)); ?>;
+                                const name = <?php echo json_encode(htmlspecialchars($result->name)); ?>;
 
-                                // Inisialisasi peta
                                 const map = L.map('map').setView([latitude, longitude], 12);
-
-                                // Tambahkan layer peta OpenStreetMap
                                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
                                     maxZoom: 19
                                 }).addTo(map);
 
-                                // Tambahkan marker ke peta
+                                L.marker([latitude, longitude]).addTo(map)
+                                    .bindPopup(`<strong>${name}</strong><br>Coordinates: ${latitude}, ${longitude}`)
+                                    .openPopup();
+                            });
+                        </script>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php elseif ($source === 'Fuseki'): ?>
+            <div class="airport-card">
+                <div class="airport-header">
+                    <h1><?= htmlspecialchars($airport ?? 'Unknown Airport'); ?></h1>
+                    <?php if (isset($result->kodeIATA) || isset($result->kodeICAO)): ?>
+                        <div class="airport-codes">
+                            <?= isset($result->kodeIATA) ? "IATA: " . htmlspecialchars($result->kodeIATA) : ''; ?>
+                            <?= (isset($result->kodeIATA) && isset($result->kodeICAO)) ? ' | ' : ''; ?>
+                            <?= isset($result->kodeICAO) ? "ICAO: " . htmlspecialchars($result->kodeICAO) : ''; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <?php if (isset($result->thumbnail)): ?>
+                    <img src="<?= htmlspecialchars($result->thumbnail); ?>"
+                        alt="<?= htmlspecialchars($airport ?? 'Unknown Airport'); ?>" class="airport-image">
+                <?php else: ?>
+                    <p class="no-image">No image available</p>
+                <?php endif; ?>
+
+                <div class="airport-content">
+                    <div class="info-grid">
+                        <div class="info-section">
+                            <h3>Location Information</h3>
+                            <?= isset($result->city) ? "<p><strong>City:</strong> " . htmlspecialchars($result->city) . "</p>" : ''; ?>
+                            <?= isset($location) ? "<p><strong>Location:</strong> " . htmlspecialchars($location) . "</p>" : ''; ?>
+                            <?php if (isset($result->latitude) && isset($result->longitude)): ?>
+                                <p><strong>Coordinates:</strong> <?= htmlspecialchars($result->latitude); ?>,
+                                    <?= htmlspecialchars($result->longitude); ?>
+                                </p>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="info-section">
+                            <h3>Airport Details</h3>
+                            <?= isset($result->operator) ? "<p><strong>Operator:</strong> " . htmlspecialchars($result->operator) . "</p>" : ''; ?>
+                            <?= isset($result->email) ? "<p><strong>Email:</strong> " . htmlspecialchars($result->email) . "</p>" : ''; ?>
+                        </div>
+                    </div>
+                    <?php if (isset($result->latitude) && isset($result->longitude)): ?>
+                        <div id="map" style="height: 400px; width: 100%;"></div>
+                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const latitude = <?php echo $result->latitude; ?>;
+                                const longitude = <?php echo $result->longitude; ?>;
+                                const name = <?php echo json_encode(htmlspecialchars($airport ?? 'Unknown Airport')); ?>;
+
+                                const map = L.map('map').setView([latitude, longitude], 12);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+                                    maxZoom: 19
+                                }).addTo(map);
+
                                 L.marker([latitude, longitude]).addTo(map)
                                     .bindPopup(`<strong>${name}</strong><br>Coordinates: ${latitude}, ${longitude}`)
                                     .openPopup();
@@ -293,9 +386,10 @@ try {
                 </div>
             </div>
         <?php else: ?>
-            <div class="error-message">Airport not found.</div>
+            <div class="error-message">Unknown data source.</div>
         <?php endif; ?>
     </div>
+
 </body>
 
 </html>
