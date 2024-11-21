@@ -174,38 +174,48 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                 ";
 
                     // Eksekusi query ke DBpedia dan Fuseki
+                    // Eksekusi query ke DBpedia dan Fuseki
                     $results = $sparql->query($sparqlQuery);
                     $fusekiResults = $fuseki->query($fusekiQuery);
 
                     // Gabungkan hasil dari DBpedia dan Fuseki
                     $combinedResults = [];
-
-                    // Tambahkan hasil dari DBpedia
-                    foreach ($results as $result) {
-                        $combinedResults[] = [
-                            'airport' => htmlspecialchars($result->airport),
-                            'name' => htmlspecialchars($result->name),
-                            'iata' => htmlspecialchars($result->iata),
-                            'source' => 'DBpedia',
-                        ];
-                    }
-
-                    // Tambahkan hasil dari Fuseki
+                    $addedIATA = []; // Array untuk melacak IATA yang sudah ditambahkan
+            
+                    // Tambahkan hasil dari Fuseki terlebih dahulu untuk memprioritaskan
                     foreach ($fusekiResults as $result) {
                         // Ambil nama bandara dari Fuseki
                         $airportName = isset($result->airportName) ? htmlspecialchars($result->airportName) : 'Unknown Airport';
                         $airportNama = str_replace('_', ' ', $airportName);
-                        $iata = isset($result->kodeIATA) ? htmlspecialchars($result->kodeIATA) : 'Unknown IATA';
-                        // Ambil lokasi bandara
-                        $locationName = isset($result->locationName) ? htmlspecialchars($result->locationName) : 'Unknown Location';
+                        $iata = isset($result->kodeIATA) ? htmlspecialchars($result->kodeIATA) : null;
 
-                        // Gabungkan hasil ke array
-                        $combinedResults[] = [
-                            'airport' => htmlspecialchars($result->airportName), // Gunakan $airportName sebagai URI
-                            'name' => $airportNama, // Gunakan $airportName untuk properti 'name'
-                            'iata' => $iata, // Gunakan $airportName sebagai
-                            'source' => 'Fuseki',
-                        ];
+                        if ($iata && !isset($addedIATA[$iata])) {
+                            $combinedResults[] = [
+                                'airport' => htmlspecialchars($result->airportName),
+                                'name' => $airportNama,
+                                'iata' => $iata,
+                                'source' => 'Fuseki',
+                            ];
+                            // Tandai IATA sudah ditambahkan
+                            $addedIATA[$iata] = true;
+                        }
+                    }
+
+                    // Tambahkan hasil dari DBpedia
+                    foreach ($results as $result) {
+                        $iata = isset($result->iata) ? htmlspecialchars($result->iata) : null;
+
+                        // Hanya tambahkan jika kode IATA belum ada dalam $addedIATA
+                        if ($iata && !isset($addedIATA[$iata])) {
+                            $combinedResults[] = [
+                                'airport' => htmlspecialchars($result->airport),
+                                'name' => htmlspecialchars($result->name),
+                                'iata' => $iata,
+                                'source' => 'DBpedia',
+                            ];
+                            // Tandai IATA sudah ditambahkan
+                            $addedIATA[$iata] = true;
+                        }
                     }
 
                     // Tampilkan hasil pencarian
@@ -217,12 +227,11 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                         echo "<ul class='results-list'>";
                         foreach ($combinedResults as $result) {
                             echo "<li>
-                                <a href='detail.php?uri=" . urlencode($result['airport']) . "&source=" . urlencode($result['source']) . "'>
-                                    <span class='airport-name'>{$result['name']} ({$result['iata']})</span>
-                                </a>
-                            </li>";
+            <a href='detail.php?uri=" . urlencode($result['airport']) . "&source=" . urlencode($result['source']) . "'>
+                <span class='airport-name'>{$result['name']} ({$result['iata']})</span>
+            </a>
+        </li>";
                         }
-
                         echo "</ul>";
                     } else {
                         echo "<div class='no-results'>No airports found matching your search.</div>";
