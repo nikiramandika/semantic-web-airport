@@ -26,6 +26,7 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results - <?php echo htmlspecialchars($query); ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * {
             margin: 0;
@@ -118,31 +119,30 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 
                     // Query SPARQL untuk DBpedia
                     $sparqlQuery = "
-                    SELECT DISTINCT (SAMPLE(?airport) AS ?airport) (SAMPLE(?name) AS ?name) (SAMPLE(?iata) AS ?iata)
-                    WHERE {
-                        ?airport rdf:type dbo:Airport .
-                        ?airport rdfs:label ?name .
-                        OPTIONAL { ?airport geo:lat ?lat . }
-                        OPTIONAL { ?airport geo:long ?long . }
-                        OPTIONAL { ?airport dbo:location ?location . }
-                        OPTIONAL { ?airport dbo:city ?city . }
-                         { ?airport dbo:iataLocationIdentifier ?iata . } # Tambahkan properti IATA
-                        FILTER (
-                            lang(?name) = 'en' &&
-                            (
-                                # Cocokkan lokasi, kota, nama bandara, atau kode IATA
-                                (CONTAINS(LCASE(STR(?location)), LCASE('$formattedQuery')) ||
-                                CONTAINS(LCASE(STR(?city)), LCASE('$formattedQuery')) ||
-                                CONTAINS(LCASE(?name), LCASE('$query')) ||
-                                LCASE(?iata) = LCASE('$query'))
-                            )
-                        )
-                        # Normalisasi nama bandara untuk mengelompokkan hasil
-                        BIND(REPLACE(LCASE(?name), '[^a-z0-9]', '') AS ?normalizedName)
-                    }
-                    GROUP BY ?normalizedName
-                    ORDER BY ?normalizedName
-                    limit 20
+SELECT DISTINCT (SAMPLE(?airport) AS ?airport) (SAMPLE(?name) AS ?name) (SAMPLE(?iata) AS ?iata)
+    (SAMPLE(?location) AS ?location) (SAMPLE(?city) AS ?city)
+WHERE {
+    ?airport rdf:type dbo:Airport .
+    ?airport rdfs:label ?name .
+    OPTIONAL { ?airport geo:lat ?lat . }
+    OPTIONAL { ?airport geo:long ?long . }
+    OPTIONAL { ?airport dbo:location ?location . }
+    OPTIONAL { ?airport dbo:city ?city . }
+    { ?airport dbo:iataLocationIdentifier ?iata . }
+    FILTER (
+        lang(?name) = 'en' &&
+        (
+            (CONTAINS(LCASE(STR(?location)), LCASE('$formattedQuery')) ||
+            CONTAINS(LCASE(STR(?city)), LCASE('$formattedQuery')) ||
+            CONTAINS(LCASE(?name), LCASE('$query')) ||
+            LCASE(?iata) = LCASE('$query'))
+        )
+    )
+    BIND(REPLACE(LCASE(?name), '[^a-z0-9]', '') AS ?normalizedName)
+}
+GROUP BY ?normalizedName
+ORDER BY ?normalizedName
+
                 ";
 
                     // Query SPARQL untuk Jena Fuseki
@@ -152,6 +152,8 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                         (REPLACE(STR(?airport), 'http://www.tubes_ws_airport.org#', '') AS ?airportName) 
                         ?kodeIATA 
                         (REPLACE(STR(?location), 'http://www.tubes_ws_airport.org#', '') AS ?locationName)
+                        ?city
+                        ?location
                     WHERE {
                         ?airport a www:Airport ;
                                  www:Kode_IATA ?kodeIATA ;
@@ -170,7 +172,6 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                             LCASE(?kodeIATA) = LCASE('$query')
                         )
                     }
-                    LIMIT 20
                 ";
 
                     // Eksekusi query ke DBpedia dan Fuseki
@@ -189,11 +190,17 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                         $airportNama = str_replace('_', ' ', $airportName);
                         $iata = isset($result->kodeIATA) ? htmlspecialchars($result->kodeIATA) : null;
 
+                        // Ambil location dan city, dan formatkan
+                        $location = isset($result->locationName) ? str_replace('_', ' ', htmlspecialchars($result->locationName)) : null;
+                        $city = isset($result->city) ? str_replace('_', ' ', htmlspecialchars($result->city)) : null;
+
                         if ($iata && !isset($addedIATA[$iata])) {
                             $combinedResults[] = [
                                 'airport' => htmlspecialchars($result->airportName),
                                 'name' => $airportNama,
                                 'iata' => $iata,
+                                'location' => $location,  // Menambahkan lokasi
+                                'city' => $city,          // Menambahkan kota
                                 'source' => 'Fuseki',
                             ];
                             // Tandai IATA sudah ditambahkan
@@ -201,9 +208,12 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                         }
                     }
 
+
                     // Tambahkan hasil dari DBpedia
                     foreach ($results as $result) {
                         $iata = isset($result->iata) ? htmlspecialchars($result->iata) : null;
+                        $location = isset($result->location) ? htmlspecialchars($result->location) : null;
+                        $city = isset($result->city) ? htmlspecialchars($result->city) : null;
 
                         // Hanya tambahkan jika kode IATA belum ada dalam $addedIATA
                         if ($iata && !isset($addedIATA[$iata])) {
@@ -211,6 +221,8 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                                 'airport' => htmlspecialchars($result->airport),
                                 'name' => htmlspecialchars($result->name),
                                 'iata' => $iata,
+                                'location' => $location,
+                                'city' => $city,
                                 'source' => 'DBpedia',
                             ];
                             // Tandai IATA sudah ditambahkan
@@ -218,19 +230,52 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                         }
                     }
 
+                    $resultsPerPage = 10; // Menampilkan 10 hasil per halaman
+            
+                    $totalResults = count($combinedResults);
+                    $totalPages = ceil($totalResults / $resultsPerPage);
+
+                    // Menentukan halaman yang saat ini
+                    $currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+                    $startIndex = ($currentPage - 1) * $resultsPerPage;
+
+                    // Mengambil data hasil untuk halaman saat ini
+                    $currentResults = array_slice($combinedResults, $startIndex, $resultsPerPage);
+
+
                     // Tampilkan hasil pencarian
                     echo "<div class='results-header'>
     <h2>Search Results for \"" . htmlspecialchars($query) . "\"</h2>
 </div>";
 
-                    if (count($combinedResults) > 0) {
-                        echo "<ul class='results-list'>";
-                        foreach ($combinedResults as $result) {
-                            echo "<li>
-            <a href='detail.php?uri=" . urlencode($result['airport']) . "&source=" . urlencode($result['source']) . "'>
-                <span class='airport-name'>{$result['name']} ({$result['iata']})</span>
-            </a>
-        </li>";
+                    if (count($currentResults) > 0) {
+                        echo "<ul class='results-list space-y-4'>";  // Menambahkan jarak antar list items
+                        foreach ($currentResults as $result) {
+                            // Memformat location dan city (menghilangkan URL dan mengganti _ dengan spasi)
+                            $location = isset($result['location']) ? str_replace(['http://dbpedia.org/resource/', '_'], ['', ' '], $result['location']) : null;
+                            $city = isset($result['city']) ? str_replace(['http://dbpedia.org/resource/', '_'], ['', ' '], $result['city']) : null;
+
+                            echo "<li class='border border-gray-300 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300'>
+                <a href='detail.php?uri=" . urlencode($result['airport']) . "&source=" . urlencode($result['source']) . "' class='text-blue-600 hover:text-blue-800'>
+                    <span class='font-semibold text-lg'>{$result['name']} ({$result['iata']})</span>
+                </a>";
+
+                            // Menampilkan lokasi dan kota jika ada
+                            if ($location || $city) {
+                                echo "<div class='airport-details text-gray-600 text-sm mt-2'>"; // mt-2 untuk memberi jarak antara nama bandara dan detail
+            
+                                if ($location) {
+                                    echo "<p class='location'>Location: <span class='font-medium'>{$location}</span></p>";
+                                }
+
+                                if ($city) {
+                                    echo "<p class='city'>City: <span class='font-medium'>{$city}</span></p>";
+                                }
+
+                                echo "</div>";
+                            }
+
+                            echo "</li>";
                         }
                         echo "</ul>";
                     } else {
@@ -275,7 +320,57 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
                 }
             }
             ?>
+
         </div>
+        <?php
+        if ($totalPages > 1) {
+            echo "<div class='pagination flex justify-center items-center mt-6 space-x-2'>";
+
+            // Tombol Previous
+            if ($currentPage > 1) {
+                echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage - 1) . "' class='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-l-lg flex items-center'>
+                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+                    <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
+                </svg>Previous
+              </a>";
+            } else {
+                echo "<span class='px-4 py-2 bg-gray-200 text-gray-400 rounded-l-lg flex items-center'>
+                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+                    <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
+                </svg>Previous
+              </span>";
+            }
+
+            // Tombol Halaman
+            for ($i = 1; $i <= $totalPages; $i++) {
+                if ($i == $currentPage) {
+                    echo "<span class='px-4 py-2 bg-blue-600 text-white rounded-lg'>{$i}</span>";
+                } else {
+                    echo "<a href='?query=" . urlencode($query) . "&page={$i}' class='px-4 py-2 bg-gray-200 hover:bg-gray-300 text-black rounded-lg'>{$i}</a>";
+                }
+            }
+
+            // Tombol Next
+            if ($currentPage < $totalPages) {
+                echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage + 1) . "' class='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg flex items-center'>
+                Next
+                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+                    <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
+                </svg>
+              </a>";
+            } else {
+                echo "<span class='px-4 py-2 bg-gray-200 text-gray-400 rounded-r-lg flex items-center'>
+                Next
+                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+                    <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
+                </svg>
+              </span>";
+            }
+
+            echo "</div>";
+        }
+        ?>
+
     </div>
 </body>
 
