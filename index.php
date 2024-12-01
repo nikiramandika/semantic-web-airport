@@ -9,32 +9,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airport Search</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/output.css">
+    <link rel="stylesheet" href="css/output.css">
 </head>
 
 <body>
     <div class="video-container">
         <div class="video-wrapper active" id="video1-wrapper">
             <video id="video1" muted playsinline>
-                <source src="assets/plane2.mp4" type="video/mp4">
+                <source src="assets/img/awan.mp4" type="video/mp4">
             </video>
-            <div class="overlay"></div>
         </div>
         <div class="video-wrapper" id="video2-wrapper">
             <video id="video2" muted playsinline>
-                <source src="assets/plane1.mp4" type="video/mp4">
+                <source src="assets/img/awan.mp4" type="video/mp4">
             </video>
-            <div class="overlay"></div>
         </div>
     </div>
+   
 
     <div class="content">
         <!-- Area teks yang bisa digunakan untuk tampilan dinamis -->
-        <div class="typing-text" id="typing-text">
+        <div class="typing-text text-gray-100" id="typing-text">
             <!-- Tambahkan teks dinamis di sini jika diperlukan -->
         </div>
 
         <!-- Kotak pencarian -->
-        <div class="search-box" id="search-box">
+        <!-- <div class="search-box" id="search-box">
             <form action="results.php" method="get" onsubmit="return validateInput()">
                 <input type="text" name="query" id="queryInput" class="search-input"
                     placeholder="Enter airport name or code..." required minlength="3">
@@ -43,7 +44,27 @@
                 </p>
                 <button type="submit" hidden class="search-button">cari</button>
             </form>
+        </div> -->
+        <div class="w-full">
+        <form action="results.php" method="get" onsubmit="return validateInput()">
+        <div class="relative w-7/12 mx-auto">
+        
+        <input type="search" id="default-search" class="bg-blue-800/[.05] backdrop-blur-lg block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20  shadow-lg ring-1 ring-blue-800/5 rounded-full bg-gray-50 focus:outline-none placeholder:text-gray-300" placeholder="Search airports, by city, country" required name="query" id="queryInput" />
+        <!-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
+            <svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+        </div> -->
+        <button type="submit" class="text-white absolute end-2.5 bottom-4 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-xl px-5 py-2  my-auto"><svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg> </button>
         </div>
+
+
+        </form>
+
+        </div>
+       
     </div>
 
     <!-- Script untuk validasi input -->
@@ -67,7 +88,7 @@
 
     <script>
         const phrases = [
-            "What are you looking for?",
+            "Find your airport",
             "Search for your destination",
             "Find your airport",
             "Where would you like to go?",

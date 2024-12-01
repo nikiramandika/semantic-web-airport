@@ -1,0 +1,22 @@
+body {
+    /* background: rgb(158, 191, 245);
+    background: radial-gradient(
+      circle,
+      rgba(158, 191, 245, 1) 0%,
+      rgba(249, 251, 255, 1) 53%,
+      rgba(255, 255, 255, 1) 82%,
+      rgba(255, 255, 255, 1) 100%,
+      rgba(2, 5, 29, 1) 100%
+    ); */
+
+
+    
+    background-image: url("../assets/img/bg.jpg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 0; /* Remove default margin to ensure the background covers the entire viewport */
+    height: 100vh; /* Ensure the background spans the entire visible screen */
+    background-attachment: fixed; /* Keep the background fixed during scrolling */
+  }
+  
