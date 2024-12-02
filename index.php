@@ -27,12 +27,15 @@
         </div>
     </div>
     <nav class="fixed top-0 left-0 w-full z-10 bg-transparent">
-  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-2">
     <div class="relative flex h-16 items-center justify-center">
       <!-- Bagian logo yang akan diposisikan di tengah -->
       <div class="flex flex-1 items-center justify-center">
-        <div class="shrink-0">
-          <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+        <div class="shrink-0 flex text-white">
+        <a href="index.php">
+            <img class="h-10 w-auto" src="assets/img/logo.png" alt="Your Company">
+            </a>
+           <!-- <p class="text-md ml-2 my-auto">Airsearch</p> -->
         </div>
       </div>
     </div>
@@ -43,7 +46,7 @@
     <div class="content">
         
         <!-- Area teks yang bisa digunakan untuk tampilan dinamis -->
-        <div class="typing-text text-gray-100" id="typing-text">
+        <div class="typing-text text-gray-100 h-28" id="typing-text">
             <!-- Tambahkan teks dinamis di sini jika diperlukan -->
         </div>
 
@@ -58,11 +61,11 @@
                 <button type="submit" hidden class="search-button">cari</button>
             </form>
         </div> -->
-        <div class="w-full">
+        <div class="w-full bg-transparent">
         <form action="results.php" method="get" onsubmit="return validateInput()">
-        <div class="relative w-7/12 mx-auto">
+        <div class="relative w-7/12 mx-auto bg-transparent">
         
-        <input type="search" id="default-search" class="bg-blue-800/[.05] backdrop-blur-lg block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20  shadow-lg ring-1 ring-blue-800/5 rounded-full bg-gray-50 focus:outline-none placeholder:text-gray-300" placeholder="Search airports, by city, country" required name="query" id="queryInput" />
+        <input type="search" id="default-search" class="bg-blue-800/[0.1] backdrop-blur-md block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20 ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-300 focus:bg-blue-800/[0.1] focus:text-gray-100 autofill:text-gray-100 active:bg-blue-800/[0.1]" placeholder="Search airports, by city, country, code" required name="query" id="queryInput" autocomplete="off"/>
         <!-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
@@ -164,19 +167,21 @@
             }
         }
 
-        // Event listeners for videos
-        video1.addEventListener('ended', switchVideos);
-        video2.addEventListener('ended', switchVideos);
-
-        // Start everything
-        video1.play();
         typeText();
         setTimeout(() => {
             searchBox.classList.add('visible');
         }, 1000);
 
-        // Preload second video
-        video2.load();
+
+
+        video2.load(); // Preload video2, no need to modify PHP logic
+
+// Event listeners for videos to trigger the switch when one ends
+video1.addEventListener('ended', switchVideos);
+video2.addEventListener('ended', switchVideos);
+
+// Start video1 when the page loads
+video1.play();
     </script>
 </body>
 

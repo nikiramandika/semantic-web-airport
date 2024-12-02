@@ -17,6 +17,11 @@ function formatToDBR($input)
 
 // Ambil input dari pengguna
 $query = isset($_GET['query']) ? trim($_GET['query']) : '';
+
+if (empty($query)) {
+    header("Location: index.php");
+    exit();
+} 
 ?>
 
 <!DOCTYPE html>
@@ -150,7 +155,7 @@ body::-webkit-scrollbar-thumb
         background-color: #1e293b !important;
         color: white !important;
         box-shadow: 0 0 0px 1000px rgb(31 41 55 / var(--tw-bg-opacity, 1)) inset !important;
-        border: 0.1px solid white;
+        border: 0.1px solid transparent;
         }
 
         
@@ -158,14 +163,29 @@ body::-webkit-scrollbar-thumb
 </head>
 
 <body class="bg-gray-900">
-    <div class="container w-full mx-auto my-auto p-16">
+<nav class="fixed top-0 left-0 w-full z-10 bg-gray-500/[0.1] backdrop-blur-md">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-2 ">
+    <div class="relative flex h-16 items-center justify-center">
+      <!-- Bagian logo yang akan diposisikan di tengah -->
+      <div class="flex flex-1 items-center justify-center">
+        <div class="shrink-0 flex text-white">
+            <a href="index.php">
+            <img class="h-10 w-auto" src="assets/img/logo.png" alt="Your Company">
+            </a>
+           <!-- <p class="text-md ml-2 my-auto">Airsearch</p> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+    <div class="container w-full mx-auto my-auto p-16 mt-16">
 
 
     <div class="w-full">
         <form action="results.php" method="get">
         <div class="relative w-7/12 mx-auto">
         
-        <input type="search" id="default-search" class="bg-gray-800 backdrop-blur-lg block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20  shadow-lg ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-300 focus:bg-gray-800 focus:text-gray-100 autofill:text-gray-100 active:bg-gray-800" value="<?php echo htmlspecialchars($query) ?>" placeholder="Search airports, by city, country" required name="query" id="queryInput"/>
+        <input type="search" id="default-search" class="bg-gray-800 backdrop-blur-lg block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20  ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-600 placeholder:text-sm placeholder:my-4 placeholder:my-auto focus:bg-gray-800 focus:text-gray-100 autofill:text-gray-100 active:bg-gray-800" value="<?php echo htmlspecialchars($query) ?>" placeholder="Search airports, by city, country" required name="query" id="queryInput"/>
         <!-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>

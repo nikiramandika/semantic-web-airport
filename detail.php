@@ -364,9 +364,10 @@ try {
                             <p><strong>Coordinates:</strong> <?= htmlspecialchars($result->latitude); ?>, <?= htmlspecialchars($result->longitude); ?></p>
                         <?php endif; ?>
                     </div>
-
+                    <hr>
                     <div class="info-section">
                         <h3 class="text-lg font-semibold">Airport Details</h3>
+                        
                         <?= isset($result->operator) ? "<p><strong>Operator:</strong> " . htmlspecialchars($result->operator) . "</p>" : ''; ?>
                         <?= isset($result->email) ? "<p><strong>Email:</strong> " . htmlspecialchars($result->email) . "</p>" : ''; ?>
                     </div>
