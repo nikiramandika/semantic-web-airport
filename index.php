@@ -7,6 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="assets/img/logo.png">
     <title>Airport Search</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/output.css">
@@ -91,9 +92,12 @@
 
 
             </form>
-
+            
         </div>
-
+        <div class="mx-auto text-center w-full mt-4 text-gray-300 ">
+        <a href="categories.php" class="w-min hover:text-gray-700">See by popular country</a>
+        </div>
+        
     </div>
 
     <!-- Script untuk validasi input -->

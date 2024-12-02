@@ -111,10 +111,12 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="assets/img/logo.png">
     <title><?php if ($source === 'Fuseki'): ?> <?= htmlspecialchars($airport ?? 'Unknown Airport'); endif; ?> 
         <?php echo ($source === 'DBpedia') ? ($result ? htmlspecialchars($result->name) : 'Airport Details') : ''; ?>
 
     </title>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="css/output.css">

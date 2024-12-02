@@ -8,13 +8,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Airport Search by Country</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="assets/img/logo.png">
 </head>
 
 <body class="bg-gray-900 text-white">
-
-    <div class="container mx-auto px-4 py-10">
-        <h1 class="text-3xl font-semibold text-center mb-8">Select a Country</h1>
+<nav class="fixed top-0 left-0 w-full z-10 bg-gray-500/[0.1] backdrop-blur-md">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-2 ">
+    <div class="relative flex h-16 items-center justify-center">
+      <!-- Bagian logo yang akan diposisikan di tengah -->
+      <div class="flex flex-1 items-center justify-center">
+        <div class="shrink-0 flex text-white">
+            <a href="index.php">
+            <img class="h-10 w-auto" src="assets/img/logo.png" alt="Your Company">
+            </a>
+           <!-- <p class="text-md ml-2 my-auto">Airsearch</p> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+    <div class="container mx-auto px-4 py-32">
+        <h1 class="text-3xl font-semibold text-center mb-16">Select a Country</h1>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
             <!-- Category for Indonesia -->
