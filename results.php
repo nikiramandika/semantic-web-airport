@@ -27,14 +27,48 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results - <?php echo htmlspecialchars($query); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/output.css">
     <style>
+        input[type="search"]::-webkit-search-cancel-button {
+  appearance: none; /* Remove the default cancel button appearance */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E")
+      no-repeat center;
+  background-size: 16px; /* Adjust the size of the X icon */
+  width: 30px; /* Size of the cancel button */
+  height: 30px;
+  cursor: pointer; /* Pointer cursor for better UX */
+  background-color: transparent; /* Transparent button background */
+}
+
+/* Works on Firefox */
+body::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	background-color: transparent;
+}
+
+body::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: transparent;
+}
+
+body::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: rgb(31 41 55);
+}
+
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
+        /* body {
             font-family: 'Arial', sans-serif;
             background: #f5f5f5;
             color: #333;
@@ -88,7 +122,7 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
         .airport-name {
             font-size: 1.1rem;
             font-weight: 500;
-        }
+        } */
 
         .no-results {
             padding: 2rem;
@@ -103,15 +137,56 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
             border-radius: 4px;
             margin: 1rem 0;
         }
+        input:-webkit-autofill {
+        background-color: #1e293b !important;
+        color: white !important;
+        box-shadow: 0 0 0px 1000px rgb(31 41 55 / var(--tw-bg-opacity, 1)) inset !important;
+        border: 0.1px solid white;
+        -webkit-text-fill-color: white !important;
+        font-size: 1.5rem /* 24px */;
+        line-height: 2rem /* 32px */;
+        }
+        input:active {
+        background-color: #1e293b !important;
+        color: white !important;
+        box-shadow: 0 0 0px 1000px rgb(31 41 55 / var(--tw-bg-opacity, 1)) inset !important;
+        border: 0.1px solid white;
+        }
+
+        
     </style>
 </head>
 
-<body>
-    <div class="container">
+<body class="bg-gray-900">
+    <div class="container w-full mx-auto my-auto p-16">
+
+
+    <div class="w-full">
+        <form action="results.php" method="get">
+        <div class="relative w-7/12 mx-auto">
+        
+        <input type="search" id="default-search" class="bg-gray-800 backdrop-blur-lg block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20  shadow-lg ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-300 focus:bg-gray-800 focus:text-gray-100 autofill:text-gray-100 active:bg-gray-800" value="<?php echo htmlspecialchars($query) ?>" placeholder="Search airports, by city, country" required name="query" id="queryInput"/>
+        <!-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
+            <svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+        </div> -->
+        <button type="submit" class="text-white absolute end-2.5 bottom-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-xl px-5 py-2  my-auto"><svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg> </button>
+        </div>
+
+
+        </form>
+
+    </div>
+
+
         <div class="search-results">
             <?php
             if (empty($query)) {
-                echo "<div class='no-results'><p>Search query is required.</p></div>";
+                header("Location: index.php");
+                exit();
             } else {
                 try {
                     // Format query untuk `dbr:`
@@ -230,7 +305,7 @@ ORDER BY ?normalizedName
                         }
                     }
 
-                    $resultsPerPage = 10; // Menampilkan 10 hasil per halaman
+                    $resultsPerPage = 20; // Menampilkan 10 hasil per halaman
             
                     $totalResults = count($combinedResults);
                     $totalPages = ceil($totalResults / $resultsPerPage);
@@ -244,40 +319,41 @@ ORDER BY ?normalizedName
 
 
                     // Tampilkan hasil pencarian
-                    echo "<div class='results-header'>
-    <h2>Search Results for \"" . htmlspecialchars($query) . "\"</h2>
+                    echo "<div class='results-header mx-auto'>
+    <h2 class='text-gray-400 my-8 mx-auto text-center p-3'>Search Results for \"" . htmlspecialchars($query) . "\"</h2>
 </div>";
 
                     if (count($currentResults) > 0) {
-                        echo "<ul class='results-list space-y-4'>";  // Menambahkan jarak antar list items
+                        echo "<div class=''> <ul class='results-list grid gap-8 lg:grid-cols-2'>";  // Menambahkan jarak antar list items
                         foreach ($currentResults as $result) {
                             // Memformat location dan city (menghilangkan URL dan mengganti _ dengan spasi)
                             $location = isset($result['location']) ? str_replace(['http://dbpedia.org/resource/', '_'], ['', ' '], $result['location']) : null;
                             $city = isset($result['city']) ? str_replace(['http://dbpedia.org/resource/', '_'], ['', ' '], $result['city']) : null;
 
-                            echo "<li class='border border-gray-300 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300'>
-                <a href='detail.php?uri=" . urlencode($result['airport']) . "&source=" . urlencode($result['source']) . "' class='text-blue-600 hover:text-blue-800'>
-                    <span class='font-semibold text-lg'>{$result['name']} ({$result['iata']})</span>
-                </a>";
+                            echo "<a href='detail.php?uri=" . urlencode($result['airport']) . "&source=" . urlencode($result['source']) . "' class='block p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 bg-gray-800 hover:bg-gray-700'>";
 
-                            // Menampilkan lokasi dan kota jika ada
-                            if ($location || $city) {
-                                echo "<div class='airport-details text-gray-600 text-sm mt-2'>"; // mt-2 untuk memberi jarak antara nama bandara dan detail
-            
-                                if ($location) {
-                                    echo "<p class='location'>Location: <span class='font-medium'>{$location}</span></p>";
-                                }
+echo "<li class='cursor-pointer'>";
 
-                                if ($city) {
-                                    echo "<p class='city'>City: <span class='font-medium'>{$city}</span></p>";
-                                }
+echo "<span class='font-semibold text-lg text-blue-100 hover:text-teal-400'>{$result['name']} ({$result['iata']})</span>";
 
-                                echo "</div>";
-                            }
+// Menampilkan lokasi dan kota jika ada
+if ($location || $city) {
+    echo "<div class='airport-details text-gray-400 text-sm mt-2'>"; // mt-2 untuk memberi jarak antara nama bandara dan detail
+    if ($location && $city) {
+        echo "<span class='font-medium'>{$city}</span>";
+        echo "<span class='font-medium'>, {$location}</span>";
+    } else if ($city) {
+        echo "<span class='font-medium'>{$city}</span>";
+    } else if ($location) {
+        echo "<span class='font-medium'>{$location}</span>";
+    }
+    echo "</div>";
+}
 
-                            echo "</li>";
+echo "</li>";
+echo "</a>";
                         }
-                        echo "</ul>";
+                        echo "</ul> </div>";
                     } else {
                         echo "<div class='no-results'>No airports found matching your search.</div>";
                     }
@@ -323,53 +399,54 @@ ORDER BY ?normalizedName
 
         </div>
         <?php
-        if ($totalPages > 1) {
-            echo "<div class='pagination flex justify-center items-center mt-6 space-x-2'>";
+if ($totalPages > 1) {
+    echo "<div class='pagination flex justify-center items-center mt-16 space-x-2'>";
 
-            // Tombol Previous
-            if ($currentPage > 1) {
-                echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage - 1) . "' class='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-l-lg flex items-center'>
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
-                    <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
-                </svg>Previous
-              </a>";
-            } else {
-                echo "<span class='px-4 py-2 bg-gray-200 text-gray-400 rounded-l-lg flex items-center'>
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
-                    <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
-                </svg>Previous
-              </span>";
-            }
+    // Tombol Previous
+    if ($currentPage > 1) {
+        echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage - 1) . "' class='px-4 py-2 bg-gray-800 hover:bg-gray-700 text-teal-500 rounded-l-lg flex items-center'>
+        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+            <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
+        </svg>Previous
+      </a>";
+    } else {
+        echo "<span class='px-4 py-2 bg-gray-600 text-gray-400 rounded-l-lg flex items-center'>
+        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+            <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
+        </svg>Previous
+      </span>";
+    }
 
-            // Tombol Halaman
-            for ($i = 1; $i <= $totalPages; $i++) {
-                if ($i == $currentPage) {
-                    echo "<span class='px-4 py-2 bg-blue-600 text-white rounded-lg'>{$i}</span>";
-                } else {
-                    echo "<a href='?query=" . urlencode($query) . "&page={$i}' class='px-4 py-2 bg-gray-200 hover:bg-gray-300 text-black rounded-lg'>{$i}</a>";
-                }
-            }
-
-            // Tombol Next
-            if ($currentPage < $totalPages) {
-                echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage + 1) . "' class='px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg flex items-center'>
-                Next
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
-                    <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
-                </svg>
-              </a>";
-            } else {
-                echo "<span class='px-4 py-2 bg-gray-200 text-gray-400 rounded-r-lg flex items-center'>
-                Next
-                <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
-                    <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
-                </svg>
-              </span>";
-            }
-
-            echo "</div>";
+    // Tombol Halaman
+    for ($i = 1; $i <= $totalPages; $i++) {
+        if ($i == $currentPage) {
+            echo "<span class='px-4 py-2 bg-gray-800 text-teal-500 rounded-lg'>{$i}</span>";
+        } else {
+            echo "<a href='?query=" . urlencode($query) . "&page={$i}' class='px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg'>{$i}</a>";
         }
-        ?>
+    }
+
+    // Tombol Next
+    if ($currentPage < $totalPages) {
+        echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage + 1) . "' class='px-4 py-2 bg-gray-800 hover:bg-gray-700 text-teal-500 rounded-r-lg flex items-center'>
+        Next
+        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+            <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
+        </svg>
+      </a>";
+    } else {
+        echo "<span class='px-4 py-2 bg-gray-600 text-gray-400 rounded-r-lg flex items-center'>
+        Next
+        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+            <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
+        </svg>
+      </span>";
+    }
+
+    echo "</div>";
+}
+?>
+
 
     </div>
 </body>

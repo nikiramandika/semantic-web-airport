@@ -26,9 +26,22 @@
             </video>
         </div>
     </div>
-   
+    <nav class="fixed top-0 left-0 w-full z-10 bg-transparent">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+    <div class="relative flex h-16 items-center justify-center">
+      <!-- Bagian logo yang akan diposisikan di tengah -->
+      <div class="flex flex-1 items-center justify-center">
+        <div class="shrink-0">
+          <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
 
     <div class="content">
+        
         <!-- Area teks yang bisa digunakan untuk tampilan dinamis -->
         <div class="typing-text text-gray-100" id="typing-text">
             <!-- Tambahkan teks dinamis di sini jika diperlukan -->
@@ -55,7 +68,7 @@
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
             </svg>
         </div> -->
-        <button type="submit" class="text-white absolute end-2.5 bottom-4 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-xl px-5 py-2  my-auto"><svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+        <button type="submit" class="text-white absolute end-2.5 bottom-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-xl px-5 py-2  my-auto"><svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
             </svg> </button>
         </div>
