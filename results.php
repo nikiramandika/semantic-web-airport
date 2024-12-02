@@ -185,7 +185,7 @@ body::-webkit-scrollbar-thumb
         <form action="results.php" method="get">
         <div class="relative w-7/12 mx-auto">
         
-        <input type="search" id="default-search" class="bg-gray-800 backdrop-blur-lg block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20  ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-600 placeholder:text-sm placeholder:my-4 placeholder:my-auto focus:bg-gray-800 focus:text-gray-100 autofill:text-gray-100 active:bg-gray-800" value="<?php echo htmlspecialchars($query) ?>" placeholder="Search airports, by city, country" required name="query" id="queryInput"/>
+        <input type="search" id="default-search" class="bg-gray-800 backdrop-blur-lg block w-full py-5 ps-8 pr-16 text-2xl text-gray-100 border border-slate-400/20  ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-600 placeholder:text-md placeholder:my-4  focus:bg-gray-800 focus:text-gray-100 autofill:text-gray-100 active:bg-gray-800" value="<?php echo htmlspecialchars($query) ?>" placeholder="Search airports, by city, country" required name="query" id="queryInput"/>
         <!-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>

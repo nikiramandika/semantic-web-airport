@@ -91,11 +91,13 @@ try {
         $location = str_replace($namespace, '', $result->location);
         $location = str_replace('_', ' ', $location);
     } else {
+        echo '<div class="mt-4 text-red-500"></div>';
         throw new Exception("Invalid source specified.");
     }
 
     if (!$result) {
-        throw new Exception("No details found for the provided URI.");
+        echo '<div class="mt-4 text-red-500"></div>';
+    throw new Exception("No details found for the provided URI.");
     }
 } catch (Exception $e) {
     $error = $e->getMessage();
@@ -109,7 +111,10 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $result ? htmlspecialchars($result->name) : 'Airport Details'; ?></title>
+    <title><?php if ($source === 'Fuseki'): ?> <?= htmlspecialchars($airport ?? 'Unknown Airport'); endif; ?> 
+        <?php echo ($source === 'DBpedia') ? ($result ? htmlspecialchars($result->name) : 'Airport Details') : ''; ?>
+
+    </title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="css/output.css">
@@ -224,7 +229,22 @@ try {
 </head>
 
 <body class="bg-gray-900 text-gray-100">
-<div class="container mx-auto p-4 bg-gray-900 text-white">
+<nav class="fixed top-0 left-0 w-full z-10 bg-gray-500/[0.1] backdrop-blur-md">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-2 ">
+    <div class="relative flex h-16 items-center justify-center">
+      <!-- Bagian logo yang akan diposisikan di tengah -->
+      <div class="flex flex-1 items-center justify-center">
+        <div class="shrink-0 flex text-white">
+            <a href="index.php">
+            <img class="h-10 w-auto" src="assets/img/logo.png" alt="Your Company">
+            </a>
+           <!-- <p class="text-md ml-2 my-auto">Airsearch</p> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="mt-32 container mx-auto p-4 bg-gray-900 text-white">
     <?php if (isset($error)): ?>
         <div class="bg-red-800 text-white p-4 rounded">
             <?= htmlspecialchars($error); ?>
@@ -329,6 +349,7 @@ try {
             <?php endif; ?>
         </div>
         <?php elseif ($source === 'Fuseki'): ?>
+            
     <div class="airport-card bg-gray-800 shadow-lg rounded-lg overflow-hidden">
         <div class="airport-header text-center bg-gray-700 p-4">
             <h1 class="text-3xl font-bold"><?= htmlspecialchars($airport ?? 'Unknown Airport'); ?></h1>

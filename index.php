@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="css/output.css">
     <link rel="stylesheet" href="css/output.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
@@ -65,7 +66,7 @@
         <form action="results.php" method="get" onsubmit="return validateInput()">
         <div class="relative w-7/12 mx-auto bg-transparent">
         
-        <input type="search" id="default-search" class="bg-blue-800/[0.1] backdrop-blur-md block w-full py-5 ps-8 pr-20 text-2xl text-gray-100 border border-slate-400/20 ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-300 focus:bg-blue-800/[0.1] focus:text-gray-100 autofill:text-gray-100 active:bg-blue-800/[0.1]" placeholder="Search airports, by city, country, code" required name="query" id="queryInput" autocomplete="off"/>
+        <input type="search" id="default-search" class="bg-blue-800/[0.1] backdrop-blur-md block w-full py-5 ps-8 pr-16 text-2xl text-gray-100 border border-slate-400/20 ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-300 focus:bg-blue-800/[0.1] focus:text-gray-100 autofill:text-gray-100 active:bg-blue-800/[0.1]" placeholder="Search airports, by city, country, code" required name="query" id="queryInput" autocomplete="off"/>
         <!-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
