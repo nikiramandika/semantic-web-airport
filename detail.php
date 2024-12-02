@@ -328,23 +328,25 @@ try {
                 </script>
             <?php endif; ?>
         </div>
-    <?php elseif ($source === 'Fuseki'): ?>
-        <div class="airport-card bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-            <div class="airport-header text-center bg-gray-700 p-4">
-                <h1 class="text-3xl font-bold"><?= htmlspecialchars($airport ?? 'Unknown Airport'); ?></h1>
-                <?php if (isset($result->kodeIATA) || isset($result->kodeICAO)): ?>
-                    <p class="text-sm text-gray-400">
-                        <?= isset($result->kodeIATA) ? "IATA: " . htmlspecialchars($result->kodeIATA) : ''; ?>
-                        <?= (isset($result->kodeIATA) && isset($result->kodeICAO)) ? ' | ' : ''; ?>
-                        <?= isset($result->kodeICAO) ? "ICAO: " . htmlspecialchars($result->kodeICAO) : ''; ?>
-                    </p>
-                <?php endif; ?>
-            </div>
-            
+        <?php elseif ($source === 'Fuseki'): ?>
+    <div class="airport-card bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+        <div class="airport-header text-center bg-gray-700 p-4">
+            <h1 class="text-3xl font-bold"><?= htmlspecialchars($airport ?? 'Unknown Airport'); ?></h1>
+            <?php if (isset($result->kodeIATA) || isset($result->kodeICAO)): ?>
+                <p class="text-sm text-gray-400">
+                    <?= isset($result->kodeIATA) ? "IATA: " . htmlspecialchars($result->kodeIATA) : ''; ?>
+                    <?= (isset($result->kodeIATA) && isset($result->kodeICAO)) ? ' | ' : ''; ?>
+                    <?= isset($result->kodeICAO) ? "ICAO: " . htmlspecialchars($result->kodeICAO) : ''; ?>
+                </p>
+            <?php endif; ?>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 m-16">
             <?php if (isset($result->thumbnail)): ?>
                 <div>
                     <img src="<?= htmlspecialchars($result->thumbnail); ?>"
-                        alt="<?= htmlspecialchars($airport ?? 'Unknown Airport'); ?>" class="w-full h-auto rounded-lg object-cover shadow-md">
+                         alt="<?= htmlspecialchars($airport ?? 'Unknown Airport'); ?>" 
+                         class="w-full h-auto rounded-lg object-cover shadow-md">
                 </div>
             <?php else: ?>
                 <div class="flex items-center justify-center bg-gray-700 h-64 rounded-lg">
@@ -370,31 +372,33 @@ try {
                     </div>
                 </div>
             </div>
-
-            <?php if (isset($result->latitude) && isset($result->longitude)): ?>
-                <div id="map" class="h-96 mt-4 rounded-lg shadow-md m-16"></div>
-                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const latitude = <?php echo $result->latitude; ?>;
-                        const longitude = <?php echo $result->longitude; ?>;
-                        const name = <?php echo json_encode(htmlspecialchars($airport ?? 'Unknown Airport')); ?>;
-
-                        const map = L.map('map').setView([latitude, longitude], 12);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-                            maxZoom: 19
-                        }).addTo(map);
-
-                        L.marker([latitude, longitude]).addTo(map)
-                            .bindPopup(`<strong>${name}</strong><br>Coordinates: ${latitude}, ${longitude}`)
-                            .openPopup();
-                    });
-                </script>
-            <?php endif; ?>
         </div>
-    <?php endif; ?>
+
+        <?php if (isset($result->latitude) && isset($result->longitude)): ?>
+            <div id="map" class="h-96 mt-4 rounded-lg shadow-md m-16"></div>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const latitude = <?php echo $result->latitude; ?>;
+                    const longitude = <?php echo $result->longitude; ?>;
+                    const name = <?php echo json_encode(htmlspecialchars($airport ?? 'Unknown Airport')); ?>;
+
+                    const map = L.map('map').setView([latitude, longitude], 12);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+                        maxZoom: 19
+                    }).addTo(map);
+
+                    L.marker([latitude, longitude]).addTo(map)
+                        .bindPopup(`<strong>${name}</strong><br>Coordinates: ${latitude}, ${longitude}`)
+                        .openPopup();
+                });
+            </script>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
 </div>
 
 
