@@ -21,7 +21,7 @@ $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 if (empty($query)) {
     header("Location: index.php");
     exit();
-} 
+}
 ?>
 
 <!DOCTYPE html>
@@ -36,36 +36,37 @@ if (empty($query)) {
     <link rel="stylesheet" href="css/output.css">
     <style>
         input[type="search"]::-webkit-search-cancel-button {
-  appearance: none; /* Remove the default cancel button appearance */
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E")
-      no-repeat center;
-  background-size: 16px; /* Adjust the size of the X icon */
-  width: 30px; /* Size of the cancel button */
-  height: 30px;
-  cursor: pointer; /* Pointer cursor for better UX */
-  background-color: transparent; /* Transparent button background */
-}
+            appearance: none;
+            /* Remove the default cancel button appearance */
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E") no-repeat center;
+            background-size: 16px;
+            /* Adjust the size of the X icon */
+            width: 30px;
+            /* Size of the cancel button */
+            height: 30px;
+            cursor: pointer;
+            /* Pointer cursor for better UX */
+            background-color: transparent;
+            /* Transparent button background */
+        }
 
-/* Works on Firefox */
-body::-webkit-scrollbar-track
-{
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-	border-radius: 10px;
-	background-color: transparent;
-}
+        /* Works on Firefox */
+        body::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            background-color: transparent;
+        }
 
-body::-webkit-scrollbar
-{
-	width: 12px;
-	background-color: transparent;
-}
+        body::-webkit-scrollbar {
+            width: 12px;
+            background-color: transparent;
+        }
 
-body::-webkit-scrollbar-thumb
-{
-	border-radius: 10px;
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-	background-color: rgb(31 41 55);
-}
+        body::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+            background-color: rgb(31 41 55);
+        }
 
 
         * {
@@ -143,65 +144,235 @@ body::-webkit-scrollbar-thumb
             border-radius: 4px;
             margin: 1rem 0;
         }
+
         input:-webkit-autofill {
-        background-color: #1e293b !important;
-        color: white !important;
-        box-shadow: 0 0 0px 1000px rgb(31 41 55 / var(--tw-bg-opacity, 1)) inset !important;
-        border: 0.1px solid white;
-        -webkit-text-fill-color: white !important;
-        font-size: 1.5rem /* 24px */;
-        line-height: 2rem /* 32px */;
-        }
-        input:active {
-        background-color: #1e293b !important;
-        color: white !important;
-        box-shadow: 0 0 0px 1000px rgb(31 41 55 / var(--tw-bg-opacity, 1)) inset !important;
-        border: 0.1px solid transparent;
+            background-color: #1e293b !important;
+            color: white !important;
+            box-shadow: 0 0 0px 1000px rgb(31 41 55 / var(--tw-bg-opacity, 1)) inset !important;
+            border: 0.1px solid white;
+            -webkit-text-fill-color: white !important;
+            font-size: 1.5rem
+                /* 24px */
+            ;
+            line-height: 2rem
+                /* 32px */
+            ;
         }
 
-        
+        input:active {
+            background-color: #1e293b !important;
+            color: white !important;
+            box-shadow: 0 0 0px 1000px rgb(31 41 55 / var(--tw-bg-opacity, 1)) inset !important;
+            border: 0.1px solid transparent;
+        }
     </style>
 </head>
 
 <body class="bg-gray-900">
-<nav class="fixed top-0 left-0 w-full z-10 bg-gray-500/[0.1] backdrop-blur-md">
-  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-2 ">
-    <div class="relative flex h-16 items-center justify-center">
-      <!-- Bagian logo yang akan diposisikan di tengah -->
-      <div class="flex flex-1 items-center justify-center">
-        <div class="shrink-0 flex text-white">
-            <a href="index.php">
-            <img class="h-10 w-auto" src="assets/img/logo.png" alt="Your Company">
-            </a>
-           <!-- <p class="text-md ml-2 my-auto">Airsearch</p> -->
+    <nav class="fixed top-0 left-0 w-full z-10 bg-gray-500/[0.1] backdrop-blur-md">
+        <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-2 ">
+            <div class="relative flex h-16 items-center justify-center">
+                <!-- Bagian logo yang akan diposisikan di tengah -->
+                <div class="flex flex-1 items-center justify-center">
+                    <div class="shrink-0 flex text-white">
+                        <a href="index.php">
+                            <img class="h-10 w-auto" src="assets/img/logo.png" alt="Your Company">
+                        </a>
+                        <!-- <p class="text-md ml-2 my-auto">Airsearch</p> -->
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-</nav>
+    </nav>
     <div class="container w-full mx-auto my-auto p-16 mt-16">
 
 
-    <div class="w-full">
-        <form action="results.php" method="get">
-        <div class="relative w-7/12 mx-auto">
-        
-        <input type="search" id="default-search" class="bg-gray-800 backdrop-blur-lg block w-full py-5 ps-8 pr-16 text-2xl text-gray-100 border border-slate-400/20  ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-600 placeholder:text-md placeholder:my-4  focus:bg-gray-800 focus:text-gray-100 autofill:text-gray-100 active:bg-gray-800" value="<?php echo htmlspecialchars($query) ?>" placeholder="Search airports, by city, country" required name="query" id="queryInput"/>
-        <!-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
-            <svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-            </svg>
-        </div> -->
-        <button type="submit" class="text-white absolute end-2.5 bottom-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-xl px-5 py-2  my-auto"><svg class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-            </svg> </button>
+        <?php
+        function findClosestMatch($query, $validQuery)
+        {
+            $bestMatch = null;
+            $lowestDistance = PHP_INT_MAX;
+
+            foreach ($validQuery as $valid) {
+                $distance = levenshtein(strtolower($query), strtolower($valid));
+                if ($distance < $lowestDistance && $distance > 0) {
+                    $lowestDistance = $distance;
+                    $bestMatch = $valid;
+                }
+            }
+
+            return ($lowestDistance <= 2) ? $bestMatch : null;
+        }
+
+        $validQuery = [
+            'Jakarta',
+            'Surabaya',
+            'Bandung',
+            'Medan',
+            'Semarang',
+            'Yogyakarta',
+            'Denpasar',
+            'Makassar',
+            'Palembang',
+            'Malang',
+            'Tangerang',
+            'Depok',
+            'Bekasi',
+            'Samarinda',
+            'Batam',
+            'Bandar Lampung',
+            'Pekanbaru',
+            'Pontianak',
+            'Banjarmasin',
+            'Mataram',
+            'Cirebon',
+            'Manado',
+            'Ambon',
+            'Kupang',
+            'Tasikmalaya',
+            'Cilegon',
+            'Surakarta',
+            'Padang',
+            'Balikpapan',
+            'Jambi',
+            'Kendari',
+            'Sukabumi',
+            'Bengkulu',
+            'Gorontalo',
+            'Palu',
+            'Ternate',
+            'Jayapura',
+            'Bontang',
+            'Magelang',
+            'Solok',
+            'Blitar',
+            'Probolinggo',
+            'Jember',
+            'Sidoarjo',
+            'Sragen',
+            'Sungai Penuh',
+            'Banjarbaru',
+            'Palopo',
+            'Banjarmasin',
+            'Pati',
+            'Karawang',
+            'Lombok',
+            'Ponorogo',
+            'Banyuwangi',
+            'Kediri',
+            'Klaten',
+            'Tegal',
+            'Luwuk',
+            'Bima',
+            'Samarinda',
+            'Madiun',
+            'Selayar',
+            'Bondowoso',
+            'Bontang',
+            'Tegal',
+            'Magelang',
+            'Pontianak',
+            'Serang',
+            'Langsa',
+            'Batang',
+            'Subang',
+            'Rembang',
+            'Raja Ampat',
+            'Buru',
+            'Cianjur',
+            'Kuningan',
+            'Sukabumi',
+            'Indonesia',
+            'United States',
+            'Canada',
+            'United Kingdom',
+            'Australia',
+            'Germany',
+            'France',
+            'Italy',
+            'Spain',
+            'Netherlands',
+            'Sweden',
+            'Norway',
+            'Denmark',
+            'Finland',
+            'Portugal',
+            'Belgium',
+            'Switzerland',
+            'Austria',
+            'Poland',
+            'Greece',
+            'Japan',
+            'South Korea',
+            'China',
+            'India',
+            'Russia',
+            'Brazil',
+            'Argentina',
+            'Mexico',
+            'South Africa',
+            'Egypt',
+            'Saudi Arabia',
+            'Turkey',
+            'United Arab Emirates',
+            'Singapore',
+            'Malaysia',
+            'Thailand',
+            'Vietnam',
+            'Philippines',
+            'New Zealand',
+            'South Korea',
+            'India',
+            'Pakistan',
+            'Bangladesh',
+            'Chile',
+            'Peru',
+            'Colombia',
+            'Ecuador',
+            'Czech Republic',
+            'Slovakia',
+            'Ukraine',
+            'Romania',
+            'Bulgaria',
+            'Turkey',
+            'Israel',
+            'Iraq',
+            'Iran'
+        ];
+        $query = $_GET['query'] ?? '';
+        $suggestion = null;
+
+        if (!empty($query)) {
+            $suggestion = findClosestMatch($query, $validQuery);
+        }
+        ?>
+
+        <div class="w-full">
+            <form action="results.php" method="get">
+                <div class="relative w-7/12 mx-auto">
+                    <input type="search" id="default-search"
+                        class="bg-gray-800 backdrop-blur-lg block w-full py-5 ps-8 pr-16 text-2xl text-gray-100 border border-slate-400/20  ring-1 ring-blue-800/5 rounded-full focus:outline-none placeholder:text-gray-600 placeholder:text-md placeholder:my-4  focus:bg-gray-800 focus:text-gray-100 autofill:text-gray-100 active:bg-gray-800"
+                        value="<?php echo htmlspecialchars($query) ?>" placeholder="Search airports, by city, country"
+                        required name="query" id="queryInput" />
+                    <button type="submit"
+                        class="text-white absolute end-2.5 bottom-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-xl px-5 py-2  my-auto"><svg
+                            class="w-6 h-6 text-gray-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                        </svg> </button>
+                </div>
+            </form>
+
+            <?php if ($suggestion): ?>
+                <div class="text-center mt-2 text-blue-500">
+                    Did you mean:
+                    <a class="hover:underline font-bold" href="?query=<?php echo urlencode($suggestion); ?>">
+                        <?php echo $suggestion; ?>
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
-
-
-        </form>
-
-    </div>
-
 
         <div class="search-results">
             <?php
@@ -353,26 +524,26 @@ ORDER BY ?normalizedName
 
                             echo "<a href='detail.php?uri=" . urlencode($result['airport']) . "&source=" . urlencode($result['source']) . "' class='block p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 bg-gray-800 hover:bg-gray-700'>";
 
-echo "<li class='cursor-pointer'>";
+                            echo "<li class='cursor-pointer'>";
 
-echo "<span class='font-semibold text-lg text-blue-100 hover:text-teal-400'>{$result['name']} ({$result['iata']})</span>";
+                            echo "<span class='font-semibold text-lg text-blue-100 hover:text-teal-400'>{$result['name']} ({$result['iata']})</span>";
 
-// Menampilkan lokasi dan kota jika ada
-if ($location || $city) {
-    echo "<div class='airport-details text-gray-400 text-sm mt-2'>"; // mt-2 untuk memberi jarak antara nama bandara dan detail
-    if ($location && $city) {
-        echo "<span class='font-medium'>{$city}</span>";
-        echo "<span class='font-medium'>, {$location}</span>";
-    } else if ($city) {
-        echo "<span class='font-medium'>{$city}</span>";
-    } else if ($location) {
-        echo "<span class='font-medium'>{$location}</span>";
-    }
-    echo "</div>";
-}
+                            // Menampilkan lokasi dan kota jika ada
+                            if ($location || $city) {
+                                echo "<div class='airport-details text-gray-400 text-sm mt-2'>"; // mt-2 untuk memberi jarak antara nama bandara dan detail
+                                if ($location && $city) {
+                                    echo "<span class='font-medium'>{$city}</span>";
+                                    echo "<span class='font-medium'>, {$location}</span>";
+                                } else if ($city) {
+                                    echo "<span class='font-medium'>{$city}</span>";
+                                } else if ($location) {
+                                    echo "<span class='font-medium'>{$location}</span>";
+                                }
+                                echo "</div>";
+                            }
 
-echo "</li>";
-echo "</a>";
+                            echo "</li>";
+                            echo "</a>";
                         }
                         echo "</ul> </div>";
                     } else {
@@ -420,53 +591,53 @@ echo "</a>";
 
         </div>
         <?php
-if ($totalPages > 1) {
-    echo "<div class='pagination flex justify-center items-center mt-16 space-x-2'>";
+        if ($totalPages > 1) {
+            echo "<div class='pagination flex justify-center items-center mt-16 space-x-2'>";
 
-    // Tombol Previous
-    if ($currentPage > 1) {
-        echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage - 1) . "' class='px-4 py-2 bg-gray-800 hover:bg-gray-700 text-teal-500 rounded-l-lg flex items-center'>
+            // Tombol Previous
+            if ($currentPage > 1) {
+                echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage - 1) . "' class='px-4 py-2 bg-gray-800 hover:bg-gray-700 text-teal-500 rounded-l-lg flex items-center'>
         <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
             <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
         </svg>Previous
       </a>";
-    } else {
-        echo "<span class='px-4 py-2 bg-gray-600 text-gray-400 rounded-l-lg flex items-center'>
+            } else {
+                echo "<span class='px-4 py-2 bg-gray-600 text-gray-400 rounded-l-lg flex items-center'>
         <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
             <path stroke-linecap='round' stroke-linejoin='round' d='M15 19l-7-7 7-7'></path>
         </svg>Previous
       </span>";
-    }
+            }
 
-    // Tombol Halaman
-    for ($i = 1; $i <= $totalPages; $i++) {
-        if ($i == $currentPage) {
-            echo "<span class='px-4 py-2 bg-gray-800 text-teal-500 rounded-lg'>{$i}</span>";
-        } else {
-            echo "<a href='?query=" . urlencode($query) . "&page={$i}' class='px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg'>{$i}</a>";
+            // Tombol Halaman
+            for ($i = 1; $i <= $totalPages; $i++) {
+                if ($i == $currentPage) {
+                    echo "<span class='px-4 py-2 bg-gray-800 text-teal-500 rounded-lg'>{$i}</span>";
+                } else {
+                    echo "<a href='?query=" . urlencode($query) . "&page={$i}' class='px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg'>{$i}</a>";
+                }
+            }
+
+            // Tombol Next
+            if ($currentPage < $totalPages) {
+                echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage + 1) . "' class='px-4 py-2 bg-gray-800 hover:bg-gray-700 text-teal-500 rounded-r-lg flex items-center'>
+        Next
+        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+            <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
+        </svg>
+      </a>";
+            } else {
+                echo "<span class='px-4 py-2 bg-gray-600 text-gray-400 rounded-r-lg flex items-center'>
+        Next
+        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
+            <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
+        </svg>
+      </span>";
+            }
+
+            echo "</div>";
         }
-    }
-
-    // Tombol Next
-    if ($currentPage < $totalPages) {
-        echo "<a href='?query=" . urlencode($query) . "&page=" . ($currentPage + 1) . "' class='px-4 py-2 bg-gray-800 hover:bg-gray-700 text-teal-500 rounded-r-lg flex items-center'>
-        Next
-        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
-            <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
-        </svg>
-      </a>";
-    } else {
-        echo "<span class='px-4 py-2 bg-gray-600 text-gray-400 rounded-r-lg flex items-center'>
-        Next
-        <svg xmlns='http://www.w3.org/2000/svg' class='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'>
-            <path stroke-linecap='round' stroke-linejoin='round' d='M9 5l7 7-7 7'></path>
-        </svg>
-      </span>";
-    }
-
-    echo "</div>";
-}
-?>
+        ?>
 
 
     </div>
